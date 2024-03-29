@@ -1,0 +1,8 @@
+cookie.txt
+settings.yml
+
+*.pyc
+
+tmp/*
+
+.DS_Store
