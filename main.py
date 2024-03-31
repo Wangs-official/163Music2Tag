@@ -4,16 +4,19 @@ import logging
 import time
 import json
 import argparse
+import ssl
 from logging.handlers import RotatingFileHandler
 
 #Check
 try:
     from colorlog import ColoredFormatter
+    from mutagen.id3 import ID3, TIT2, TALB, TPE1, TCOM
+    from mutagen.id3 import ID3NoHeaderError
+    from mutagen.id3 import USLT, Encoding
+    from tqdm import tqdm
     import requests
     import wget
     import yaml
-    import mutagen
-    from tqdm import tqdm
 except ImportError as e:
     # Not install
     logging.error("[!] 库未完全安装,请执行 python install.py 重新安装,或者查看下方报错信息单独安装:pip install 库名")
@@ -38,6 +41,11 @@ def is_number(s):
 def progress_bar(current, total, width=80):
     progress = current / total * 100
     tqdm.write(f'下载中：{progress:.2f}% [共{total}字节]',end='\r')
+
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
+
 
 #Set log
 logger = logging.getLogger("163m2tag")
@@ -117,9 +125,8 @@ if is_number(args.songid):
     songlrc_api_url = api_url + "lyric?id=" + args.songid
     songinfo_api_url = api_url + "song/detail?ids=" + args.songid
     logger.debug(f"\n{song_api_url},{songlrc_api_url},{songinfo_api_url}")
+
     song_req = requests.get(song_api_url , headers=headers)
-    song_lrc_req = requests.get(songlrc_api_url)
-    song_info_req = requests.get(songinfo_api_url)
     if song_req.status_code == 200:
         song_url = json.loads(song_req.text)['data'][0]['url']
         song_fti = json.loads(song_req.text)['data'][0]['freeTrialInfo']
@@ -133,14 +140,73 @@ if is_number(args.songid):
         except TypeError:
             pass
         #Download
-        logger.info(f"获取成功,正在下载")
         song_download_name = args.songid + ".mp3"
         try:
+            if os.path.exists(f"tmp/songs/{song_download_name}"):
+                logger.warning("目录下已有此歌曲文件,默认删除重下")
+                os.remove(f"tmp/songs/{song_download_name}")
+            time.sleep(0.3)
             wget.download(song_url, out='tmp/songs/' + song_download_name , bar=progress_bar)
+            logger.info(f"歌曲下载成功")
         except Exception as e:
             logger.error(f'下载时出现异常: {e}')
+            exit()
     else:
         logging.error(f"请求出现异常\n状态码:{song_req.status_code}\n返回:{song_req.text}")
+        exit()
+
+    song_info_req = requests.get(songinfo_api_url)
+    if song_info_req.status_code == 200:
+        song_info_j = json.loads(song_info_req.text)
+        _song_name = song_info_j['songs'][0]['name']
+        _song_al_name = song_info_j['songs'][0]['al']['name']
+        _song_al_pic_adrori = song_info_j['songs'][0]['al']['picUrl']
+        _song_al_pic = "http://" + _song_al_pic_adrori.split("https://")[1]
+        _song_artist_origin = song_info_j['songs'][0]['ar']
+        _song_artist_0 = [artist["name"] for artist in _song_artist_origin]
+        _song_artist = ",".join(_song_artist_0)
+        logger.debug(f"{_song_name},{_song_al_name},{_song_al_pic},{_song_artist}")
+
+        #Download
+        songpic_download_name = args.songid + ".jpg"
+        try:
+            if os.path.exists(f"tmp/pics/{songpic_download_name}"):
+                logger.warning("目录下已有此专辑图片,默认删除重下")
+                os.remove(f"tmp/pics/{songpic_download_name}")
+            time.sleep(0.3)
+            wget.download(_song_al_pic, out='tmp/pics/' + songpic_download_name , bar=progress_bar)
+            logger.info(f"专辑图片下载成功")
+        except Exception as e:
+            logger.error(f'下载时出现异常: {e}')
+            exit()
+    else:
+        logging.error(f"请求出现异常\n状态码:{song_req.status_code}\n返回:{song_req.text}")
+        exit()
+
+    if input(logger.warning("要获取歌词并写入到歌曲标签内吗?部分播放器(如Applemusic)可能不支持lrc格式,输入1来获取,输入其他跳过: ")) == "1":
+        song_lrc_req = requests.get(songlrc_api_url)
+        if song_lrc_req.status_code == 200:
+            _song_lrc = json.loads(song_lrc_req.text)['lrc']['lyric']
+            logger.debug(_song_lrc)
+        else:
+            logging.error(f"请求出现异常\n状态码:{song_req.status_code}\n返回:{song_req.text}")
+            exit()
+    else:
+        _song_lrc = ""
+
+    #Mutagen
+    try:
+        tags = ID3(song_download_name)
+    except ID3NoHeaderError:
+        tags = ID3()
+
+    tags["TIT2"] = TIT2(encoding=3, text=_song_name)
+    tags["TALB"] = TALB(encoding=3, text=_song_al_name)
+    tags["TPE1"] = TPE1(encoding=3, text=_song_artist)
+    tags["TCOM"] = TCOM(encoding=3, text=_song_artist)
+    tags.delall("USLT::eng")
+    if not len(_song_lrc) == 0:
+        tags.setall("USLT", [USLT(encoding=Encoding.UTF8, lang='chi', format=2, type=1, text=_song_lrc)])
 else:
     logger.error("输入的不是一个数字")
     exit()
