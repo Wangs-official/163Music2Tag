@@ -3,6 +3,9 @@ settings.yml
 
 *.pyc
 
-tmp/*
+tmp/
 
 .DS_Store
+*/.DS_Store
+
+output/

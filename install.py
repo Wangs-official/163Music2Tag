@@ -85,7 +85,7 @@ if not os.path.exists('tmp'):
         os.makedirs('tmp/pics')
         print("\n[OK]tmp/pics文件夹创建成功!")
     else:
-        print("\n[!]tmp/pics文件已存在!")
+        print("\n[!]tmp/pics文件夹已存在!")
     if not os.path.exists('tmp/songs'):
         os.makedirs('tmp/songs')
         print("\n[OK]tmp/songs文件夹创建成功!")
@@ -102,7 +102,14 @@ else:
         os.makedirs('tmp/songs')
         print("\n[!]tmp/songs不存在,创建成功")
     else:
-        print("\n[OK]tmp/songs文件已存在!")
+        print("\n[OK]tmp/songs文件夹已存在!")
+
+print("\n[...]正在生成输出文件夹")
+if not os.path.exists('output'):
+    os.makedirs('output')
+    print("\n[OK]输出文件夹创建成功!")
+else:
+    print("\n[!]输出文件夹已存在!")
 
 # Get Cookie
 login_get_cookie = input("\n[?]要登录以获取Cookie吗(可以下载付费歌曲,如果你有会员的话),输入1获取,输入其他跳过:")
