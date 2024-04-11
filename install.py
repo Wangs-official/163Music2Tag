@@ -63,7 +63,11 @@ except ImportError:
 print("\n[OK]所有库安装完成")
 
 # Write settings.yml
-import yaml
+try:
+    import yaml
+except ImportError:
+    print("请重新启动程序,否则刚刚安装的pyyaml无法正常加载")
+    exit()
 if not os.path.exists('settings.yml'):
     print("\n[...]正在生成设置文件")
     f = open("settings.yml", "w")
