@@ -9,7 +9,7 @@ import getpass
 import time
 import json
 print('[~]Author:Wangs_official')
-apiurl = 'https://m163.a.vercel.stardawn.xyz/' # 使用其他的API服务,请修改这里的域名
+apiurl = 'https://api.music.areschang.top/' # 使用其他的API服务,请修改这里的域名
 
 # Install Library
 try:
