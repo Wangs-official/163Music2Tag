@@ -41,7 +41,8 @@ def is_number(s):
 
 def progress_bar(current, total, width=80):
     progress = current / total * 100
-    tqdm.write(f'下载中：{progress:.2f}% [共{total}字节]', end='\r')
+    ft = '{:.2f}'.format(total / 1048576)
+    tqdm.write(f'下载中：{progress:.2f}% [共{ft}Mb]', end='\r')
 
 
 ssl_context = ssl.create_default_context()
