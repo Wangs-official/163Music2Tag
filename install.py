@@ -8,12 +8,14 @@ import logging
 import getpass
 import time
 import json
+
 print('[~]Author:Wangs_official')
-apiurl = 'https://api.music.areschang.top/' # 使用其他的API服务,请修改这里的域名
+apiurl = 'https://mu-api.yuk0.com/'  # 使用其他的API服务,请修改这里的域名
 
 # Install Library
 try:
     import requests
+
     print("\n[OK]requests 已安装")
 except ImportError:
     print("\n[X]requests未安装,正在安装")
@@ -22,6 +24,7 @@ except ImportError:
 
 try:
     import mutagen
+
     print("\n[OK]mutagen 已安装")
 except ImportError:
     print("\n[X]mutagen未安装,正在安装")
@@ -30,6 +33,7 @@ except ImportError:
 
 try:
     import yaml
+
     print("\n[OK]yaml 已安装")
 except ImportError:
     print("\n[X]yaml未安装,正在安装")
@@ -38,6 +42,7 @@ except ImportError:
 
 try:
     import wget
+
     print("\n[OK]wget 已安装")
 except ImportError:
     print("\n[X]wget未安装,正在安装")
@@ -46,6 +51,7 @@ except ImportError:
 
 try:
     import tqdm
+
     print("\n[OK]tqdm 已安装")
 except ImportError:
     print("\n[X]tqdm未安装,正在安装")
@@ -54,6 +60,7 @@ except ImportError:
 
 try:
     import colorlog
+
     print("\n[OK]colorlog 已安装")
 except ImportError:
     print("\n[X]colorlog未安装,正在安装")
@@ -72,7 +79,7 @@ if not os.path.exists('settings.yml'):
     print("\n[...]正在生成设置文件")
     f = open("settings.yml", "w")
     f.close
-    data = {'api_url': apiurl, 'use_cookie': False, 'del_tmp_when_complete' : False}
+    data = {'api_url': apiurl, 'use_cookie': False, 'del_tmp_when_complete': False}
     with open('settings.yml', 'w', encoding='utf-8') as f:
         yaml.dump(data=data, stream=f, allow_unicode=True)
     print("\n[OK]生成settings.yml成功!")
@@ -137,7 +144,8 @@ if login_get_cookie == "1":
         user_name = origin_login_back_json.get("profile", {}).get("nickname")
         with open("cookie.txt", "w") as ck_file:
             ck_file.write(cookie_value)
-            print(f'\n[OK]欢迎您！{user_name}，登录成功,安装完毕,欢迎使用\n如果要使用Cookie访问,请将settings.yml内 use_cookie 的值改为 true')
+            print(
+                f'\n[OK]欢迎您！{user_name}，登录成功,安装完毕,欢迎使用\n如果要使用Cookie访问,请将settings.yml内 use_cookie 的值改为 true')
             exit()
     else:
         print('\n[!]出现错误!状态码：' + login_back.status_code + '\n返回内容：' + login_back.text + '\n 五秒后退出')

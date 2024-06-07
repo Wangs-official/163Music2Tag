@@ -1,17 +1,15 @@
-#@author : Wangs_official
-import os
-import logging
-import time
-import json
+# @author : Wangs_official
 import argparse
+import json
+import logging
+import os
 import ssl
-from logging.handlers import RotatingFileHandler
-import shutil
+import time
 
-#Check
+# Check
 try:
     from colorlog import ColoredFormatter
-    from mutagen.id3 import ID3, TIT2, TALB, TPE1, TCOM , APIC
+    from mutagen.id3 import ID3, TIT2, TALB, TPE1, TCOM, APIC
     from mutagen.id3 import ID3NoHeaderError
     from mutagen.id3 import USLT, Encoding
     from tqdm import tqdm
@@ -24,7 +22,8 @@ except ImportError as e:
     logging.error(e)
     exit()
 
-#Something
+
+# Something
 def is_number(s):
     try:
         float(s)
@@ -39,33 +38,34 @@ def is_number(s):
         pass
     return False
 
+
 def progress_bar(current, total, width=80):
     progress = current / total * 100
-    tqdm.write(f'下载中：{progress:.2f}% [共{total}字节]',end='\r')
+    tqdm.write(f'下载中：{progress:.2f}% [共{total}字节]', end='\r')
+
 
 ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
 ssl_context.verify_mode = ssl.CERT_NONE
 
-
-#Set log
+# Set log
 logger = logging.getLogger("163m2tag")
 logger.setLevel(logging.DEBUG)
 fmt = "%(log_color)s%(asctime)s %(log_color)s%(levelname)s %(log_color)s%(message)s"
 datefmt = '%a, %d %b %Y %H:%M:%S'
 formatter = ColoredFormatter(fmt=fmt,
-                       datefmt=datefmt,
-                       reset=True,
-                       secondary_log_colors={},
-                       style='%'
-                       )
+                             datefmt=datefmt,
+                             reset=True,
+                             secondary_log_colors={},
+                             style='%'
+                             )
 hd_1 = logging.StreamHandler()
 hd_1.setFormatter(formatter)
 logger.addHandler(hd_1)
 logger.info("日志记录器加载完毕")
 time.sleep(0.5)
 
-#Check
+# Check
 if not os.path.exists('tmp'):
     logger.error("[!] tmp文件夹不存在,请创建tmp文件夹以及tmp/pics和tmp/songs文件夹")
     exit()
@@ -91,7 +91,7 @@ else:
     logger.info("输出文件夹检查完毕")
 time.sleep(0.5)
 
-#Load settings
+# Load settings
 try:
     with open('settings.yml') as f:
         y = yaml.safe_load(f)
@@ -107,14 +107,15 @@ except KeyError as e:
 logger.info(f"配置文件加载完成! API地址:{api_url} , 是否使用Cookie:{use_cookie_s} , 是否在每次完成后删除缓存:{del_tmp}")
 time.sleep(0.5)
 
-#Create header
+# Create header
 if use_cookie:
     if os.path.exists("cookie.txt"):
         with open("cookie.txt") as f:
             headers = {'Cookie': f.read()}
             logger.info("请求头构建完毕")
     else:
-        logger.error("不存在cookie.txt文件,请将settings.yml内 use_cookie 的值改为 false 或者 执行 python install.py 重新安装")
+        logger.error(
+            "不存在cookie.txt文件,请将settings.yml内 use_cookie 的值改为 false 或者 执行 python install.py 重新安装")
         exit()
 else:
     headers = {}
@@ -123,7 +124,7 @@ time.sleep(0.5)
 
 # Start
 parser = argparse.ArgumentParser(description='https://github.com/wangs-official/163Music2Tag/\nAuthor:Wangs_official')
-parser.add_argument("-id", "--songid", help="The Song ID" , type=str , required=True)
+parser.add_argument("-id", "--songid", help="The Song ID", type=str, required=True)
 args = parser.parse_args()
 start_time = int(time.time())
 if is_number(args.songid):
@@ -133,7 +134,7 @@ if is_number(args.songid):
     songlrc_api_url = api_url + "lyric?id=" + args.songid
     songinfo_api_url = api_url + "song/detail?ids=" + args.songid
 
-    song_req = requests.get(song_api_url , headers=headers)
+    song_req = requests.get(song_api_url, headers=headers)
     if song_req.status_code == 200:
         song_url = json.loads(song_req.text)['data'][0]['url']
         song_fti = json.loads(song_req.text)['data'][0]['freeTrialInfo']
@@ -146,14 +147,14 @@ if is_number(args.songid):
                 exit()
         except TypeError:
             pass
-        #Download
+        # Download
         song_download_name = args.songid + ".mp3"
         try:
             if os.path.exists(f"tmp/songs/{song_download_name}"):
                 logger.warning("目录下已有此歌曲文件,默认删除重下")
                 os.remove(f"tmp/songs/{song_download_name}")
             time.sleep(0.3)
-            wget.download(song_url, out='tmp/songs/' + song_download_name , bar=progress_bar)
+            wget.download(song_url, out='tmp/songs/' + song_download_name, bar=progress_bar)
             logger.info(f"歌曲下载成功")
         except Exception as e:
             logger.error(f'下载时出现异常: {e}')
@@ -173,14 +174,14 @@ if is_number(args.songid):
         _song_artist_0 = [artist["name"] for artist in _song_artist_origin]
         _song_artist = ",".join(_song_artist_0)
         logger.info(f"歌曲名:{_song_name} , 歌手:{_song_artist} , 专辑:{_song_artist}")
-        #Download
+        # Download
         songpic_download_name = args.songid + ".jpg"
         try:
             if os.path.exists(f"tmp/pics/{songpic_download_name}"):
                 logger.warning("目录下已有此专辑图片,默认删除重下")
                 os.remove(f"tmp/pics/{songpic_download_name}")
             time.sleep(0.3)
-            wget.download(_song_al_pic, out='tmp/pics/' + songpic_download_name , bar=progress_bar)
+            wget.download(_song_al_pic, out='tmp/pics/' + songpic_download_name, bar=progress_bar)
             logger.info(f"专辑图片下载成功")
         except Exception as e:
             logger.error(f'下载时出现异常: {e}')
@@ -189,7 +190,8 @@ if is_number(args.songid):
         logging.error(f"请求出现异常\n状态码:{song_req.status_code}\n返回:{song_req.text}")
         exit()
 
-    if input(logger.warning("要获取歌词并写入到歌曲标签内吗?部分播放器(如Applemusic)可能不支持lrc格式,输入1来获取,输入其他跳过: ")) == "1":
+    if input(logger.warning(
+            "要获取歌词并写入到歌曲标签内吗?部分播放器(如Applemusic)可能不支持lrc格式,输入1来获取,输入其他跳过: ")) == "1":
         song_lrc_req = requests.get(songlrc_api_url)
         if song_lrc_req.status_code == 200:
             _song_lrc = json.loads(song_lrc_req.text)['lrc']['lyric']
@@ -200,7 +202,7 @@ if is_number(args.songid):
     else:
         _song_lrc = ""
 
-    #Mutagen
+    # Mutagen
     try:
         tags = ID3('tmp/songs/' + song_download_name)
     except ID3NoHeaderError:
@@ -223,16 +225,16 @@ if is_number(args.songid):
     else:
         logger.warning("未启用写入歌词")
     _song_al_f = open("tmp/pics/" + songpic_download_name, 'rb')
-    tags["APIC"] = APIC(encoding=0,mime='image/jpeg',type=3,desc=u'Cover',data=_song_al_f.read())
+    tags["APIC"] = APIC(encoding=0, mime='image/jpeg', type=3, desc=u'Cover', data=_song_al_f.read())
     tags.save()
     _song_al_f.close()
     logger.info("标签写入成功!")
     time.sleep(1)
-    os.rename('tmp/songs/' + song_download_name , 'tmp/songs/' + _song_name + '.mp3')
+    os.rename('tmp/songs/' + song_download_name, 'tmp/songs/' + _song_name + '.mp3')
     if os.path.exists(_song_name + '.mp3'):
         logger.warning("目录下已有此歌曲文件,默认删除")
         os.remove(f"output/{songpic_download_name}.mp3")
-    os.rename('tmp/songs/' + _song_name + '.mp3' , 'output/' + _song_name + '.mp3')
+    os.rename('tmp/songs/' + _song_name + '.mp3', 'output/' + _song_name + '.mp3')
     logger.info("已将歌曲转到output文件夹")
     time.sleep(0.5)
     if del_tmp:

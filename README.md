@@ -2,7 +2,7 @@
 
 拒绝瞎几把收费，享受美好本地人生
 
-> CAONIMA , API被Vercel搞了，先用别的服务吧
+> API域名暂时使用第三方的服务 `https://mu-api.yuk0.com/`
 
 ## 使用
 
@@ -12,17 +12,27 @@
 
 2. 使用
 
+单个ID
+
 `python main.py -id {歌曲ID}`
+
+多个ID （使用半角逗号隔开）
+
+`python more.py -id {歌曲ID1},{歌曲ID2},...`
+
+取链接ID
+
+`python url.py`
 
 3. 配置设置文件（可忽略）
 
 ```yaml
-api_url: https://m163.a.vercel.stardawn.xyz/ # API域名
+api_url: https://mu-api.yuk0.com/ # API域名
 del_tmp_when_complete: false # 是否删除缓存在每次完成之后
 use_cookie: false # 是否使用Cookie请求
 ```
 
-## Demo
+## Demo: 导入到AppleMusic畅听
 
 > 歌曲来自：https://music.163.com/#/song?id=1918471675
 > 上图AppleMusic，下图网易云
