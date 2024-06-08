@@ -129,9 +129,10 @@ parser.add_argument("-id", "--songid", help="The Song ID", type=str, required=Tr
 args = parser.parse_args()
 start_time = int(time.time())
 spl_songid = args.songid.split(',')
+allid = str(len(spl_songid))
 for sid in range(len(spl_songid)):
     if is_number(spl_songid[sid]):
-        logger.info(f"歌曲ID:{spl_songid[sid]},正在获取中(第{sid + 1}个)")
+        logger.info(f"歌曲ID:{spl_songid[sid]},正在获取中(第{sid + 1}/{allid}个)")
         time.sleep(1)
         song_api_url = api_url + "song/url?id=" + spl_songid[sid]
         songlrc_api_url = api_url + "lyric?id=" + spl_songid[sid]
@@ -223,7 +224,6 @@ for sid in range(len(spl_songid)):
         logger.info("已将歌曲转到output文件夹")
         time.sleep(0.5)
         if del_tmp:
-            os.remove('tmp/songs/' + song_download_name)
             os.remove('tmp/pics/' + songpic_download_name)
             logger.info("缓存已清理")
             use_time = str(int(time.time()) - start_time)

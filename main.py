@@ -239,7 +239,6 @@ if is_number(args.songid):
     logger.info("已将歌曲转到output文件夹")
     time.sleep(0.5)
     if del_tmp:
-        os.remove('tmp/songs/' + song_download_name)
         os.remove('tmp/pics/' + songpic_download_name)
         logger.info("缓存已清理")
     else:
