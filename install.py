@@ -10,7 +10,7 @@ import time
 import json
 
 print('[~]Author:Wangs_official')
-apiurl = 'https://mu-api.yuk0.com/'  # 使用其他的API服务,请修改这里的域名
+apiurl = 'https://netease-cloud-music-api-lemon.vercel.app/'  # 使用其他的API服务,请修改这里的域名
 
 # Install Library
 try:

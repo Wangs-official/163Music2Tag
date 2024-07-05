@@ -2,7 +2,7 @@
 
 拒绝瞎几把收费，享受美好本地人生
 
-> API域名暂时使用第三方的服务 `https://mu-api.yuk0.com/`
+> API域名暂时使用第三方的服务 `https://netease-cloud-music-api-lemon .vercel.app/`
 
 ## 使用
 
@@ -27,7 +27,7 @@
 3. 配置设置文件（可忽略）
 
 ```yaml
-api_url: https://mu-api.yuk0.com/ # API域名
+api_url: https://netease-cloud-music-api-lemon.vercel.app/ # API域名
 del_tmp_when_complete: false # 是否删除缓存在每次完成之后
 use_cookie: false # 是否使用Cookie请求
 ```
